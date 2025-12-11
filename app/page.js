@@ -34,93 +34,71 @@ export default function Home() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen px-6 py-10 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 text-white"
+      className="min-h-screen px-6 py-10 bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700 text-white font-[Tajawal]"
     >
-      {/* Header */}
-      <h1 className="text-4xl md:text-5xl font-extrabold text-center drop-shadow-lg mb-8">
-        🔍 منصة <span className="text-yellow-300">فَزْعَة</span> للبحث الموحّد
-      </h1>
+      {/* ================================
+                HERO SECTION
+      ================================= */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-center mb-12"
+      >
+        <h1 className="text-5xl md:text-6xl font-extrabold drop-shadow-2xl">
+          🔍 منصة <span className="text-yellow-300">فَزْعَة</span>
+        </h1>
+        <p className="text-white/80 text-xl mt-3">
+          محرك البحث الموحّد لطلبات OneStation و AHD والتذاكر.
+        </p>
+      </motion.div>
 
-      {/* Search Box */}
-      <div className="max-w-xl mx-auto backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-2xl shadow-2xl">
-        <input
-          type="text"
-          placeholder="أدخل رقم الطلب أو رقم الجوال…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && search()}
-          className="w-full bg-white text-gray-900 border-0 p-4 rounded-lg text-lg
-                     focus:ring-4 focus:ring-yellow-300 outline-none"
-        />
+      {/* ================================
+                SEARCH BOX
+      ================================= */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-xl mx-auto backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-3xl shadow-2xl"
+      >
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="أدخل رقم الطلب أو رقم الجوال…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && search()}
+            className="w-full bg-white text-gray-900 border-0 p-4 rounded-2xl text-lg
+                     focus:ring-4 focus:ring-yellow-300 outline-none pr-12"
+          />
+          <span className="absolute right-4 top-4 text-gray-600 text-xl">🔎</span>
+        </div>
 
         <button
           onClick={search}
-          className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold p-3 rounded-lg text-lg mt-4 transition shadow-md"
+          className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold p-3 rounded-xl text-lg mt-4 transition shadow-md hover:shadow-yellow-400/40"
         >
           بحث
         </button>
-      </div>
+      </motion.div>
 
       {error && (
         <p className="text-red-300 text-center mt-4 text-lg">{error}</p>
       )}
 
-      {/* Loading */}
       {loading && <Skeleton />}
 
-      {/* Results */}
+      {/* ================================
+                RESULTS
+      ================================= */}
       {!loading && results && (
         <div className="max-w-6xl mx-auto mt-10 space-y-10">
 
-          {/* ======================
-                SUMMARY CARDS
-          ====================== */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+          {/* SUMMARY CARDS */}
+          <SummaryCards results={results} />
 
-            {/* OneStation */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-2xl shadow-lg text-center"
-            >
-              <h3 className="text-xl font-bold text-yellow-300 mb-2">طلبات OneStation</h3>
-              <p className="text-4xl font-extrabold text-white">
-                {results.onestation.length}
-              </p>
-            </motion.div>
-
-            {/* AHD */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: 0.1 }}
-              className="backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-2xl shadow-lg text-center"
-            >
-              <h3 className="text-xl font-bold text-emerald-300 mb-2">طلبات AHD</h3>
-              <p className="text-4xl font-extrabold text-white">
-                {results.ahd.length}
-              </p>
-            </motion.div>
-
-            {/* Tickets */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, delay: 0.2 }}
-              className="backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-2xl shadow-lg text-center"
-            >
-              <h3 className="text-xl font-bold text-purple-300 mb-2">تذاكر Tickets</h3>
-              <p className="text-4xl font-extrabold text-white">
-                {results.tickets.length}
-              </p>
-            </motion.div>
-
-          </div>
-
-          {/* ======================
-                RESULTS SECTIONS
-          ====================== */}
+          {/* SECTIONS */}
           <ResultSection
             title="طلبات OneStation"
             color="yellow"
@@ -148,37 +126,81 @@ export default function Home() {
 }
 
 /* ===========================================================
+                    SUMMARY CARDS (محسّنة)
+   =========================================================== */
+function SummaryCards({ results }) {
+  const cards = [
+    {
+      title: "طلبات OneStation",
+      color: "yellow",
+      count: results.onestation.length,
+      icon: "📦",
+    },
+    {
+      title: "طلبات AHD",
+      color: "emerald",
+      count: results.ahd.length,
+      icon: "🛠️",
+    },
+    {
+      title: "تذاكر Tickets",
+      color: "purple",
+      count: results.tickets.length,
+      icon: "🎫",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      {cards.map((c, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: i * 0.1 }}
+          whileHover={{ scale: 1.03 }}
+          className={`relative overflow-hidden backdrop-blur-xl bg-white/10 
+                     border border-white/20 p-6 rounded-2xl shadow-xl`}
+        >
+          <div className="absolute -bottom-3 -left-3 text-white/10 text-7xl">
+            {c.icon}
+          </div>
+
+          <h3 className={`text-xl font-bold text-${c.color}-300`}>{c.title}</h3>
+          <p className="text-5xl font-extrabold mt-2">{c.count}</p>
+        </motion.div>
+      ))}
+
+    </div>
+  );
+}
+
+/* ===========================================================
       SECTION WITH FILTER + PAGINATION + ANIMATION
    =========================================================== */
 function ResultSection({ title, color, icon, items }) {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("");
-
   const pageSize = 6;
 
-  // فلترة داخل النتائج
   const filteredItems = items.filter((item) =>
     JSON.stringify(item).toLowerCase().includes(filter.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
-  const paginatedItems = filteredItems.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  const paginated = filteredItems.slice((page - 1) * pageSize, page * pageSize);
 
-  // إذا تغير الفلتر → ارجع للصفحة الأولى
   useEffect(() => setPage(1), [filter]);
 
   return (
     <div className="backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-2xl shadow-xl">
 
-      {/* Section Title */}
       <h2 className={`text-3xl font-bold flex gap-2 items-center mb-6 text-${color}-300`}>
         {icon} {title}
       </h2>
 
-      {/* Search Filter Bar */}
+      {/* Search Filter */}
       <input
         type="text"
         placeholder="بحث داخل النتائج…"
@@ -187,15 +209,13 @@ function ResultSection({ title, color, icon, items }) {
         className="w-full bg-white/20 border border-white/30 text-white placeholder-white/60 p-3 rounded-lg mb-6 focus:ring-2 focus:ring-white outline-none"
       />
 
-      {/* No Results */}
       {filteredItems.length === 0 ? (
         <p className="text-gray-200 text-lg">لا توجد نتائج مطابقة.</p>
       ) : (
         <>
-          {/* Cards + Animation */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence mode="wait">
-              {paginatedItems.map((item, i) => (
+              {paginated.map((item, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 15 }}
@@ -209,18 +229,18 @@ function ResultSection({ title, color, icon, items }) {
             </AnimatePresence>
           </div>
 
-          {/* Pagination (Numbered) */}
+          {/* Pagination */}
           <div className="flex justify-center items-center gap-2 mt-8 flex-wrap">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
               <button
                 key={num}
                 onClick={() => setPage(num)}
                 className={`px-4 py-2 rounded-lg font-bold text-sm transition border 
-                ${
-                  page === num
-                    ? "bg-white text-gray-900 border-white"
-                    : "bg-white/10 text-white border-white/30 hover:bg-white/20"
-                }`}
+                  ${
+                    page === num
+                      ? "bg-white text-gray-900 border-white"
+                      : "bg-white/10 text-white border-white/30 hover:bg-white/20"
+                  }`}
               >
                 {num}
               </button>
