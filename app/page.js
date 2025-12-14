@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 /* ===========================================================
                           PAGE
@@ -22,7 +22,6 @@ export default function Home() {
       const res = await fetch(
         `https://web-production-e9360.up.railway.app/unified/${query}`
       );
-
       if (!res.ok) throw new Error();
       const data = await res.json();
       setResults(data.sources);
@@ -42,7 +41,6 @@ export default function Home() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
         <h1 className="text-5xl font-extrabold">
@@ -63,7 +61,6 @@ export default function Home() {
           onKeyDown={(e) => e.key === "Enter" && search()}
           className="w-full bg-white text-gray-900 p-4 rounded-xl text-lg outline-none"
         />
-
         <button
           onClick={search}
           className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold p-3 rounded-xl text-lg mt-4"
@@ -78,7 +75,6 @@ export default function Home() {
       {!loading && results && (
         <div className="max-w-7xl mx-auto mt-10 space-y-10">
           <SummaryCards results={results} />
-
           <ResultSection title="طلبات OneStation" items={results.onestation} />
           <ResultSection title="طلبات AHD" items={results.ahd} />
           <ResultSection title="تذاكر Tickets" items={results.tickets} />
@@ -149,7 +145,6 @@ function ResultSection({ title, items }) {
       ) : (
         <>
           <ResultTable items={paginated} />
-
           <div className="flex justify-center gap-2 mt-6">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
               <button
@@ -177,21 +172,19 @@ function ResultSection({ title, items }) {
 function ResultTable({ items }) {
   if (!items || items.length === 0) return null;
 
-  const COLUMN_LABELS = {
-    status: "الحالة",
-    notes: "ملاحظات",
-    company: "الشركة / الفرع",
-    appointment_type: "نوع الموعد",
-    location: "المدينة",
-    delivery_date: "تاريخ التوصيل",
-    phone_number: "رقم الجوال",
-    customer_name: "اسم العميل",
-    sales_order: "أمر البيع",
-    booking_date: "تاريخ الحجز",
-    id: "رقم الطلب",
-  };
-
-  const columns = Object.keys(COLUMN_LABELS);
+  const COLUMNS = [
+    { key: "status", label: "الحالة" },
+    { key: "notes", label: "ملاحظات" },
+    { key: "company", label: "الشركة / الفرع" },
+    { key: "appointmentType", label: "نوع الموعد" },
+    { key: "city", label: "المدينة" },
+    { key: "deliveryDate", label: "تاريخ التوصيل" },
+    { key: "phone", label: "رقم الجوال" },
+    { key: "customer", label: "اسم العميل" },
+    { key: "salesOrder", label: "أمر البيع" },
+    { key: "bookingDate", label: "تاريخ الحجز" },
+    { key: "orderId", label: "رقم الطلب" },
+  ];
 
   const renderStatus = (value) => {
     if (value === "UNASSIGNED") {
@@ -208,7 +201,7 @@ function ResultTable({ items }) {
         </span>
       );
     }
-    return value ?? "-";
+    return value || "-";
   };
 
   return (
@@ -216,40 +209,34 @@ function ResultTable({ items }) {
       <table className="min-w-full text-right text-white">
         <thead className="bg-white/20">
           <tr>
-            {columns.map((col) => (
+            {COLUMNS.map((col) => (
               <th
-                key={col}
+                key={col.key}
                 className="px-4 py-3 text-sm font-bold whitespace-nowrap"
               >
-                {COLUMN_LABELS[col]}
+                {col.label}
               </th>
             ))}
           </tr>
         </thead>
-
         <tbody>
-          <AnimatePresence>
-            {items.map((item, i) => (
-              <motion.tr
-                key={i}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.15 }}
-                className="odd:bg-white/5 even:bg-white/10 hover:bg-white/20"
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col}
-                    className="px-4 py-3 text-sm whitespace-nowrap"
-                  >
-                    {col === "status"
-                      ? renderStatus(item[col])
-                      : item[col] ?? "-"}
-                  </td>
-                ))}
-              </motion.tr>
-            ))}
-          </AnimatePresence>
+          {items.map((item, i) => (
+            <tr
+              key={i}
+              className="odd:bg-white/5 even:bg-white/10 hover:bg-white/20"
+            >
+              {COLUMNS.map((col) => (
+                <td
+                  key={col.key}
+                  className="px-4 py-3 text-sm whitespace-nowrap"
+                >
+                  {col.key === "status"
+                    ? renderStatus(item[col.key])
+                    : item[col.key] ?? "-"}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
