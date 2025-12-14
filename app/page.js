@@ -180,17 +180,36 @@ function ResultSection({ title, color, items }) {
 }
 
 /* ===================== TABLE ===================== */
-function ResultTable({ items, color }) {
-  const headers = Object.keys(items[0]);
+function ResultTable({ items }) {
+  if (!items || items.length === 0) return null;
+
+  const COLUMN_LABELS = {
+    status: "الحالة",
+    notes: "ملاحظات",
+    company: "الشركة / الفرع",
+    appointment_type: "نوع الموعد",
+    location: "المدينة",
+    delivery_date: "تاريخ التوصيل",
+    phone_number: "رقم الجوال",
+    customer_name: "اسم العميل",
+    sales_order: "أمر البيع",
+    booking_date: "تاريخ الحجز",
+    id: "رقم الطلب"
+  };
+
+  const columns = Object.keys(COLUMN_LABELS);
 
   return (
     <div className="overflow-x-auto rounded-xl border border-white/20">
-      <table className="min-w-full text-right">
+      <table className="min-w-full text-right text-white">
         <thead className="bg-white/20">
           <tr>
-            {headers.map((h) => (
-              <th key={h} className="px-4 py-3 text-sm font-bold">
-                {h.replace(/_/g, " ")}
+            {columns.map((col) => (
+              <th
+                key={col}
+                className="px-4 py-3 text-sm font-bold whitespace-nowrap"
+              >
+                {COLUMN_LABELS[col]}
               </th>
             ))}
           </tr>
@@ -201,13 +220,17 @@ function ResultTable({ items, color }) {
             {items.map((item, i) => (
               <motion.tr
                 key={i}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.15 }}
                 className="odd:bg-white/5 even:bg-white/10 hover:bg-white/20"
               >
-                {headers.map((h) => (
-                  <td key={h} className="px-4 py-3 text-sm">
-                    {String(item[h] ?? "-")}
+                {columns.map((col) => (
+                  <td
+                    key={col}
+                    className="px-4 py-3 text-sm whitespace-nowrap"
+                  >
+                    {item[col] ?? "-"}
                   </td>
                 ))}
               </motion.tr>
@@ -218,6 +241,7 @@ function ResultTable({ items, color }) {
     </div>
   );
 }
+
 
 /* ===================== SKELETON ===================== */
 function Skeleton() {
