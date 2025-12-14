@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+/* ===========================================================
+                          PAGE
+=========================================================== */
 export default function Home() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +24,6 @@ export default function Home() {
       );
 
       if (!res.ok) throw new Error();
-
       const data = await res.json();
       setResults(data.sources);
     } catch {
@@ -52,7 +54,7 @@ export default function Home() {
       </motion.div>
 
       {/* SEARCH */}
-      <div className="max-w-xl mx-auto backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-3xl shadow-2xl">
+      <div className="max-w-xl mx-auto bg-white/10 border border-white/20 p-6 rounded-3xl shadow-2xl backdrop-blur-xl">
         <input
           type="text"
           placeholder="أدخل رقم الطلب أو رقم الجوال…"
@@ -77,35 +79,23 @@ export default function Home() {
         <div className="max-w-7xl mx-auto mt-10 space-y-10">
           <SummaryCards results={results} />
 
-          <ResultSection
-            title="طلبات OneStation"
-            color="yellow"
-            items={results.onestation}
-          />
-
-          <ResultSection
-            title="طلبات AHD"
-            color="emerald"
-            items={results.ahd}
-          />
-
-          <ResultSection
-            title="تذاكر Tickets"
-            color="purple"
-            items={results.tickets}
-          />
+          <ResultSection title="طلبات OneStation" items={results.onestation} />
+          <ResultSection title="طلبات AHD" items={results.ahd} />
+          <ResultSection title="تذاكر Tickets" items={results.tickets} />
         </div>
       )}
     </div>
   );
 }
 
-/* ===================== SUMMARY ===================== */
+/* ===========================================================
+                        SUMMARY
+=========================================================== */
 function SummaryCards({ results }) {
   const cards = [
-    { title: "OneStation", count: results.onestation.length, color: "yellow" },
-    { title: "AHD", count: results.ahd.length, color: "emerald" },
-    { title: "Tickets", count: results.tickets.length, color: "purple" },
+    { title: "OneStation", count: results.onestation.length },
+    { title: "AHD", count: results.ahd.length },
+    { title: "Tickets", count: results.tickets.length },
   ];
 
   return (
@@ -125,8 +115,10 @@ function SummaryCards({ results }) {
   );
 }
 
-/* ===================== SECTION ===================== */
-function ResultSection({ title, color, items }) {
+/* ===========================================================
+                        SECTION
+=========================================================== */
+function ResultSection({ title, items }) {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("");
   const pageSize = 6;
@@ -156,7 +148,7 @@ function ResultSection({ title, color, items }) {
         <p>لا توجد نتائج</p>
       ) : (
         <>
-          <ResultTable items={paginated} color={color} />
+          <ResultTable items={paginated} />
 
           <div className="flex justify-center gap-2 mt-6">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
@@ -166,7 +158,7 @@ function ResultSection({ title, color, items }) {
                 className={`px-4 py-2 rounded ${
                   page === n
                     ? "bg-white text-gray-900"
-                    : "bg-white/20"
+                    : "bg-white/20 hover:bg-white/30"
                 }`}
               >
                 {n}
@@ -179,7 +171,9 @@ function ResultSection({ title, color, items }) {
   );
 }
 
-/* ===================== TABLE ===================== */
+/* ===========================================================
+                        TABLE
+=========================================================== */
 function ResultTable({ items }) {
   if (!items || items.length === 0) return null;
 
@@ -194,10 +188,28 @@ function ResultTable({ items }) {
     customer_name: "اسم العميل",
     sales_order: "أمر البيع",
     booking_date: "تاريخ الحجز",
-    id: "رقم الطلب"
+    id: "رقم الطلب",
   };
 
   const columns = Object.keys(COLUMN_LABELS);
+
+  const renderStatus = (value) => {
+    if (value === "UNASSIGNED") {
+      return (
+        <span className="px-3 py-1 rounded-full text-sm font-bold bg-red-500/20 text-red-300">
+          غير معيّن
+        </span>
+      );
+    }
+    if (value === "ASSIGNED") {
+      return (
+        <span className="px-3 py-1 rounded-full text-sm font-bold bg-green-500/20 text-green-300">
+          معيّن
+        </span>
+      );
+    }
+    return value ?? "-";
+  };
 
   return (
     <div className="overflow-x-auto rounded-xl border border-white/20">
@@ -220,8 +232,8 @@ function ResultTable({ items }) {
             {items.map((item, i) => (
               <motion.tr
                 key={i}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ duration: 0.15 }}
                 className="odd:bg-white/5 even:bg-white/10 hover:bg-white/20"
               >
@@ -230,7 +242,9 @@ function ResultTable({ items }) {
                     key={col}
                     className="px-4 py-3 text-sm whitespace-nowrap"
                   >
-                    {item[col] ?? "-"}
+                    {col === "status"
+                      ? renderStatus(item[col])
+                      : item[col] ?? "-"}
                   </td>
                 ))}
               </motion.tr>
@@ -242,8 +256,9 @@ function ResultTable({ items }) {
   );
 }
 
-
-/* ===================== SKELETON ===================== */
+/* ===========================================================
+                        SKELETON
+=========================================================== */
 function Skeleton() {
   return (
     <div className="max-w-6xl mx-auto mt-10 animate-pulse space-y-6">
